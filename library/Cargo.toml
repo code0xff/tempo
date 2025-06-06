@@ -1,0 +1,21 @@
+[package]
+name = "library"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+eyre.workspace = true
+
+# Malachite dependencies
+malachite-core-types.workspace = true
+
+# Reth dependencies 
+reth-chainspec.workspace = true
+reth-tasks.workspace = true
+reth-primitives.workspace = true
+reth-node-builder.workspace = true
+reth-consensus.workspace = true
+
+# [patch.crates-io]
+# hickory-resolver = "0.25.0-alpha.4"
