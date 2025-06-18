@@ -2,7 +2,7 @@ use eyre::eyre;
 use crate::context::MalachiteContext;
 use crate::state::State;
 
-// use malachite_app_channel::{AppMsg, Channels, ConsensusMsg, NetworkMsg, StreamContent};
+// use malachitebft_app_channel::{AppMsg, Channels, ConsensusMsg, NetworkMsg, StreamContent};
 
 
 pub async fn run(state: &mut State, channels: &mut Channels<MalachiteContext>) -> eyre::Result<()> {
