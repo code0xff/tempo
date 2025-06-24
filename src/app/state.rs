@@ -151,7 +151,7 @@ impl State {
         Height::INITIAL // Start from height 1
     }
 
-    /// Gets a previously built value for re-use
+    /// Gets a previously built value for reuse
     pub async fn get_previously_built_value(
         &self,
         height: Height,

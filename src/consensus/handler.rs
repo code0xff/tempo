@@ -71,7 +71,7 @@ pub async fn run_consensus_handler(
                 // Check if we've already built a value for this height/round
                 match state.get_previously_built_value(height, round).await? {
                     Some(proposal) => {
-                        info!("Re-using previously built value");
+                        info!("Reusing previously built value");
                         if reply.send(proposal).is_err() {
                             error!("Failed to send GetValue reply");
                         }

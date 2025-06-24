@@ -80,7 +80,7 @@ pub async fn run(state: &mut State, channels: &mut Channels<MalachiteContext>) -
                 // we send back the very same value.
                 let proposal = match state.get_previously_built_value(height, round).await? {
                     Some(proposal) => {
-                        info!(value = %proposal.value.id(), "Re-using previously built value");
+                        info!(value = %proposal.value.id(), "Reusing previously built value");
                         proposal
                     }
                     None => {
