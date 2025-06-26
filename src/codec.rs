@@ -148,14 +148,33 @@ impl Codec<StreamMessage<ProposalPart>> for ProtoCodec {
 impl Codec<sync::Status<MalachiteContext>> for ProtoCodec {
     type Error = ProtoError;
 
-    fn decode(&self, _bytes: Bytes) -> Result<sync::Status<MalachiteContext>, Self::Error> {
-        // Placeholder implementation
-        Err(ProtoError::Other("Not implemented".to_string()))
+    fn decode(&self, bytes: Bytes) -> Result<sync::Status<MalachiteContext>, Self::Error> {
+        let proto = proto::Status::decode(bytes.as_ref())?;
+
+        let peer_id_bytes = proto
+            .peer_id
+            .ok_or_else(|| ProtoError::missing_field::<proto::Status>("peer_id"))?
+            .id;
+
+        let peer_id = sync::PeerId::from_bytes(&peer_id_bytes)
+            .map_err(|e| ProtoError::Other(format!("Invalid peer ID: {e}")))?;
+
+        Ok(sync::Status {
+            peer_id,
+            tip_height: Height(proto.height),
+            history_min_height: Height(proto.earliest_height),
+        })
     }
 
-    fn encode(&self, _msg: &sync::Status<MalachiteContext>) -> Result<Bytes, Self::Error> {
-        // Placeholder implementation
-        Err(ProtoError::Other("Not implemented".to_string()))
+    fn encode(&self, msg: &sync::Status<MalachiteContext>) -> Result<Bytes, Self::Error> {
+        let proto = proto::Status {
+            peer_id: Some(proto::PeerId {
+                id: Bytes::from(msg.peer_id.to_bytes()),
+            }),
+            height: msg.tip_height.0,
+            earliest_height: msg.history_min_height.0,
+        };
+        Ok(Bytes::from(proto.encode_to_vec()))
     }
 }
 
