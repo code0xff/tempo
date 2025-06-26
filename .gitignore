@@ -1,1 +1,4 @@
 target
+
+# Testnet runtime directories
+testnet/nodes/
