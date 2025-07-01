@@ -222,6 +222,20 @@ while true; do
     # Check if all nodes reached target
     if [ "$all_reached" = true ] && [ $responsive_nodes -eq $NUM_NODES ]; then
         log "SUCCESS: All nodes reached block $TARGET_BLOCK"
+        
+        # Run transaction tests
+        log "Running transaction tests..."
+        if [ -x "$SCRIPT_DIR/test_transactions.sh" ]; then
+            if "$SCRIPT_DIR/test_transactions.sh" $NUM_NODES; then
+                log "Transaction tests passed!"
+            else
+                error "Transaction tests failed!"
+                exit 1
+            fi
+        else
+            log "Transaction test script not found or not executable, skipping transaction tests"
+        fi
+        
         # Ensure logs directory exists for artifact upload
         if [ ! -d "$TESTNET_DIR/logs" ]; then
             log "Creating empty logs directory for artifact upload"
