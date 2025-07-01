@@ -894,7 +894,6 @@ impl State {
             .await
     }
 
-
     /// Get the finalized block hash
     /// In Malachite, blocks have instant finality - once committed, they're immediately finalized
     async fn get_finalized_hash(&self) -> Result<B256> {
