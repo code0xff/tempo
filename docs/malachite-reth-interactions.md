@@ -6,62 +6,90 @@ This document describes the communication architecture between Malachite consens
 
 ```mermaid
 graph TB
-    subgraph "P2P Network"
-        P1[Peer 1]
-        P2[Peer 2]
-        P3[Peer N]
+    subgraph "P2P Networks"
+        subgraph "Malachite P2P"
+            MP1[Validator 1]
+            MP2[Validator 2]
+            MP3[Validator N]
+        end
+        
+        subgraph "Ethereum P2P"
+            EP1[ETH Peer 1]
+            EP2[ETH Peer 2]
+            EP3[ETH Peer N]
+        end
     end
 
-    subgraph "Malachite Node"
-        subgraph "Consensus Layer (Malachite)"
-            CE[Consensus Engine]
-            VM[Validator Management]
-            PS[Proposal Streaming]
+    subgraph "reth-malachite Node"
+        subgraph "Malachite Consensus"
+            direction TB
+            CE[Consensus Engine<br/>BFT State Machine]
+            VM[Validator Set<br/>Management]
+            PSS[Proposal<br/>Streaming]
+            style CE fill:#ffd4e5,stroke:#d74894,color:#000
+            style VM fill:#ffd4e5,stroke:#d74894,color:#000
+            style PSS fill:#ffd4e5,stroke:#d74894,color:#000
         end
 
         subgraph "Integration Layer"
-            CH[Consensus Handler]
-            S[State]
-            CS[Consensus Store]
+            direction TB
+            CH[Consensus Handler<br/>Message Router]
+            S[State<br/>Coordinator]
+            CS[(Consensus Store<br/>Certificates & Proposals)]
+            style CH fill:#fff4e6,stroke:#ff9800,color:#000
+            style S fill:#fff4e6,stroke:#ff9800,color:#000
+            style CS fill:#fff4e6,stroke:#ff9800,color:#000
         end
 
-        subgraph "Execution Layer (Reth)"
-            EA[Engine API]
-            PB[Payload Builder]
-            TX[Transaction Pool]
-            DB[(Blockchain DB)]
-            EVM[EVM Execution]
+        subgraph "Reth Execution"
+            direction TB
+            EA[Engine API<br/>newPayload/FCU]
+            PB[Payload Builder<br/>Block Assembly]
+            TX[Transaction Pool<br/>Mempool]
+            EVM[EVM<br/>Execution]
+            DB[(State DB<br/>MPT)]
+            NET[Network<br/>Handler]
+            style EA fill:#e6f3ff,stroke:#0066cc,stroke-width:3px,color:#000
+            style PB fill:#e6f3ff,stroke:#0066cc,stroke-width:3px,color:#000
+            style TX fill:#e8f5e9,stroke:#4caf50,color:#000
+            style EVM fill:#e8f5e9,stroke:#4caf50,color:#000
+            style DB fill:#e8f5e9,stroke:#4caf50,color:#000
+            style NET fill:#e8f5e9,stroke:#4caf50,color:#000
         end
     end
 
     %% Network connections
-    P1 <--> PS
-    P2 <--> PS
-    P3 <--> PS
+    MP1 <-.-> PSS
+    MP2 <-.-> PSS
+    MP3 <-.-> PSS
+    
+    EP1 <-.-> NET
+    EP2 <-.-> NET
+    EP3 <-.-> NET
 
-    %% Consensus to Integration
+    %% Malachite to Integration
     CE <--> CH
-    VM --> CH
-    PS <--> S
+    VM --> S
+    PSS <--> S
 
-    %% Integration components
+    %% Integration Layer internal
     CH <--> S
     S <--> CS
+
+    %% Integration to Reth (Key interactions)
     S <--> EA
     S <--> PB
 
-    %% Execution components
+    %% Reth internal
     EA <--> EVM
     PB <--> TX
+    TX <--> NET
     EVM <--> DB
+    NET <--> DB
 
-    %% Highlight Reth interactions
-    style EA fill:#e6f3ff,stroke:#0066cc,stroke-width:3px,color:#000
-    style PB fill:#e6f3ff,stroke:#0066cc,stroke-width:3px,color:#000
-    
-    %% Labels
-    S -.- |"GetValue<br/>Decided<br/>ProcessSyncedValue"| EA
-    S -.- |"GetValue"| PB
+    %% Annotations
+    S -.- |"GetValue ✓<br/>Decided ✓<br/>ProcessSyncedValue ✓"| EA
+    S -.- |"GetValue ✓"| PB
 ```
 
 ## Overview
